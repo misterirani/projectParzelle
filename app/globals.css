@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 
@@ -23,12 +24,9 @@
   --color-club-gold: var(--club-gold);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Die App ist bewusst nur im hellen Design gebaut (weiße Karten,
+   dunkler Text). Kein automatisches Umschalten auf Dunkelmodus, da
+   sonst heller Text auf den weißen Karten unlesbar würde. */
 
 body {
   background: var(--background);
