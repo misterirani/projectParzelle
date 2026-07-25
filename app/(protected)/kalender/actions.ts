@@ -2,15 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireProfile } from "@/lib/auth";
+import { isPastDate } from "@/lib/dates";
 
 export async function createEvent(formData: FormData) {
-  await requireAdmin();
+  const profile = await requireProfile();
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
 
   const title = String(formData.get("title") ?? "").trim();
   const event_date = String(formData.get("event_date") ?? "");
@@ -19,6 +16,7 @@ export async function createEvent(formData: FormData) {
   const location = String(formData.get("location") ?? "").trim() || null;
 
   if (!title || !event_date) return;
+  if (isPastDate(event_date)) return;
 
   await supabase.from("events").insert({
     title,
@@ -26,14 +24,14 @@ export async function createEvent(formData: FormData) {
     event_time,
     description,
     location,
-    created_by: user.id,
+    created_by: profile.id,
   });
 
   revalidatePath("/kalender");
 }
 
 export async function updateEvent(formData: FormData) {
-  await requireAdmin();
+  const profile = await requireProfile();
   const supabase = await createClient();
 
   const id = String(formData.get("id") ?? "");
@@ -44,6 +42,17 @@ export async function updateEvent(formData: FormData) {
   const location = String(formData.get("location") ?? "").trim() || null;
 
   if (!id || !title || !event_date) return;
+  if (isPastDate(event_date)) return;
+
+  const { data: existing } = await supabase
+    .from("events")
+    .select("created_by, event_date")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing) return;
+  if (isPastDate(existing.event_date)) return;
+  if (existing.created_by !== profile.id && profile.role !== "admin") return;
 
   await supabase
     .from("events")
@@ -58,14 +67,26 @@ export async function updateEvent(formData: FormData) {
     .eq("id", id);
 
   revalidatePath("/kalender");
+  revalidatePath(`/kalender/${id}`);
 }
 
 export async function deleteEvent(formData: FormData) {
-  await requireAdmin();
+  const profile = await requireProfile();
   const supabase = await createClient();
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
+  const { data: existing } = await supabase
+    .from("events")
+    .select("created_by")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!existing) return;
+  if (existing.created_by !== profile.id && profile.role !== "admin") return;
+
   await supabase.from("events").delete().eq("id", id);
+
   revalidatePath("/kalender");
+  revalidatePath(`/kalender/${id}`);
 }

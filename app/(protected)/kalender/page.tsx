@@ -28,7 +28,7 @@ export default async function KalenderPage({
 }: {
   searchParams: Promise<{ year?: string; month?: string }>;
 }) {
-  const profile = await requireProfile();
+  await requireProfile();
   const now = new Date();
   const params = await searchParams;
   const year = Number(params.year) || now.getFullYear();
@@ -92,7 +92,6 @@ export default async function KalenderPage({
         year={year}
         month={month}
         events={(events ?? []) as EventItem[]}
-        isAdmin={profile.role === "admin"}
       />
     </div>
   );

@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import type { EventItem } from "@/lib/types";
-import {
-  createEvent,
-  updateEvent,
-  deleteEvent,
-} from "@/app/(protected)/kalender/actions";
+import { createEvent, updateEvent } from "@/app/(protected)/kalender/actions";
 
 type DialogState =
   | { mode: "create"; date: string }
-  | { mode: "edit"; event: EventItem }
-  | { mode: "view"; event: EventItem };
+  | { mode: "edit"; event: EventItem };
 
 export default function EventDialog({
   state,
@@ -21,29 +16,16 @@ export default function EventDialog({
   onClose: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  const event = state.mode === "create" ? null : state.event;
-  const readOnly = state.mode === "view";
+  const event = state.mode === "edit" ? state.event : null;
 
   const handleSubmit = (formData: FormData) => {
     startTransition(async () => {
       if (state.mode === "create") {
         await createEvent(formData);
-      } else if (state.mode === "edit") {
+      } else {
         formData.set("id", state.event.id);
         await updateEvent(formData);
       }
-      onClose();
-    });
-  };
-
-  const handleDelete = () => {
-    if (state.mode !== "edit") return;
-    const formData = new FormData();
-    formData.set("id", state.event.id);
-    startTransition(async () => {
-      await deleteEvent(formData);
       onClose();
     });
   };
@@ -59,9 +41,7 @@ export default function EventDialog({
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-zinc-900">
-            {state.mode === "create" && "Neuer Termin"}
-            {state.mode === "edit" && "Termin bearbeiten"}
-            {state.mode === "view" && "Termin"}
+            {state.mode === "create" ? "Neuer Termin" : "Termin bearbeiten"}
           </h2>
           <button
             onClick={onClose}
@@ -72,122 +52,77 @@ export default function EventDialog({
           </button>
         </div>
 
-        {readOnly && event ? (
-          <div className="space-y-2 text-sm">
-            <h3 className="text-base font-semibold text-zinc-900">{event.title}</h3>
-            <p className="text-zinc-500">
-              {event.event_date}
-              {event.event_time ? ` · ${event.event_time.slice(0, 5)} Uhr` : ""}
-            </p>
-            {event.location && <p className="text-zinc-700">📍 {event.location}</p>}
-            {event.description && (
-              <p className="whitespace-pre-wrap text-zinc-700">{event.description}</p>
-            )}
+        <form action={handleSubmit} className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600">
+              Titel
+            </label>
+            <input
+              name="title"
+              required
+              defaultValue={event?.title ?? ""}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
+            />
           </div>
-        ) : (
-          <form action={handleSubmit} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-600">
-                Titel
+                Datum
               </label>
               <input
-                name="title"
+                type="date"
+                name="event_date"
                 required
-                defaultValue={event?.title ?? ""}
+                defaultValue={
+                  event?.event_date ?? (state.mode === "create" ? state.date : "")
+                }
                 className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-600">
-                  Datum
-                </label>
-                <input
-                  type="date"
-                  name="event_date"
-                  required
-                  defaultValue={
-                    event?.event_date ?? (state.mode === "create" ? state.date : "")
-                  }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-zinc-600">
-                  Uhrzeit
-                </label>
-                <input
-                  type="time"
-                  name="event_time"
-                  defaultValue={event?.event_time?.slice(0, 5) ?? ""}
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
-                />
-              </div>
-            </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-zinc-600">
-                Ort
+                Uhrzeit
               </label>
               <input
-                name="location"
-                defaultValue={event?.location ?? ""}
+                type="time"
+                name="event_time"
+                defaultValue={event?.event_time?.slice(0, 5) ?? ""}
                 className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-zinc-600">
-                Beschreibung
-              </label>
-              <textarea
-                name="description"
-                rows={3}
-                defaultValue={event?.description ?? ""}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
-              />
-            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600">
+              Ort
+            </label>
+            <input
+              name="location"
+              defaultValue={event?.location ?? ""}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600">
+              Beschreibung
+            </label>
+            <textarea
+              name="description"
+              rows={3}
+              defaultValue={event?.description ?? ""}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
+            />
+          </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                {state.mode === "edit" &&
-                  (confirmDelete ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-zinc-500">Sicher?</span>
-                      <button
-                        type="button"
-                        onClick={handleDelete}
-                        disabled={isPending}
-                        className="text-xs font-medium text-red-600 hover:underline"
-                      >
-                        Ja, löschen
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDelete(false)}
-                        className="text-xs text-zinc-500 hover:underline"
-                      >
-                        Abbrechen
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setConfirmDelete(true)}
-                      className="text-xs font-medium text-red-600 hover:underline"
-                    >
-                      Löschen
-                    </button>
-                  ))}
-              </div>
-              <button
-                type="submit"
-                disabled={isPending}
-                className="rounded-md bg-club-navy px-4 py-2 text-sm font-medium text-white hover:bg-club-navy-dark disabled:opacity-50"
-              >
-                {isPending ? "Speichern…" : "Speichern"}
-              </button>
-            </div>
-          </form>
-        )}
+          <div className="flex items-center justify-end pt-2">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="rounded-md bg-club-navy px-4 py-2 text-sm font-medium text-white hover:bg-club-navy-dark disabled:opacity-50"
+            >
+              {isPending ? "Speichern…" : "Speichern"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

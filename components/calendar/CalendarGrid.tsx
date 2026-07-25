@@ -1,15 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { EventItem } from "@/lib/types";
+import { isPastDate, todayDateStr } from "@/lib/dates";
 import EventDialog from "./EventDialog";
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-
-type DialogState =
-  | { mode: "create"; date: string }
-  | { mode: "edit"; event: EventItem }
-  | { mode: "view"; event: EventItem };
 
 function buildWeeks(year: number, month: number) {
   const firstOfMonth = new Date(year, month - 1, 1);
@@ -38,12 +35,10 @@ export default function CalendarGrid({
   year,
   month,
   events,
-  isAdmin,
 }: {
   year: number;
   month: number;
   events: EventItem[];
-  isAdmin: boolean;
 }) {
   const weeks = useMemo(() => buildWeeks(year, month), [year, month]);
 
@@ -57,8 +52,8 @@ export default function CalendarGrid({
     return map;
   }, [events]);
 
-  const [dialogState, setDialogState] = useState<DialogState | null>(null);
-  const todayStr = toDateStr(new Date());
+  const [createDate, setCreateDate] = useState<string | null>(null);
+  const todayStr = todayDateStr();
 
   return (
     <>
@@ -76,6 +71,7 @@ export default function CalendarGrid({
               const dateStr = cell.date ? toDateStr(cell.date) : null;
               const dayEvents = dateStr ? eventsByDate.get(dateStr) ?? [] : [];
               const isToday = dateStr === todayStr;
+              const isPast = dateStr ? isPastDate(dateStr) : false;
 
               return (
                 <div
@@ -95,12 +91,10 @@ export default function CalendarGrid({
                       >
                         {cell.date.getDate()}
                       </span>
-                      {isAdmin && dateStr && (
+                      {dateStr && !isPast && (
                         <button
                           type="button"
-                          onClick={() =>
-                            setDialogState({ mode: "create", date: dateStr })
-                          }
+                          onClick={() => setCreateDate(dateStr)}
                           className="text-xs text-zinc-400 hover:text-club-navy"
                           aria-label="Termin hinzufügen"
                         >
@@ -110,24 +104,28 @@ export default function CalendarGrid({
                     </div>
                   )}
                   <div className="mt-1 space-y-1">
-                    {dayEvents.map((ev) => (
-                      <button
-                        key={ev.id}
-                        type="button"
-                        onClick={() =>
-                          setDialogState(
-                            isAdmin
-                              ? { mode: "edit", event: ev }
-                              : { mode: "view", event: ev }
-                          )
-                        }
-                        className="block w-full truncate rounded bg-club-navy px-1.5 py-0.5 text-left text-xs text-white hover:bg-club-navy-dark"
-                        title={ev.title}
-                      >
-                        {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}
-                        {ev.title}
-                      </button>
-                    ))}
+                    {dayEvents.map((ev) =>
+                      isPast ? (
+                        <span
+                          key={ev.id}
+                          className="block truncate rounded bg-zinc-100 px-1.5 py-0.5 text-left text-xs text-zinc-400"
+                          title={ev.title}
+                        >
+                          {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}
+                          {ev.title}
+                        </span>
+                      ) : (
+                        <Link
+                          key={ev.id}
+                          href={`/kalender/${ev.id}`}
+                          className="block truncate rounded bg-club-navy px-1.5 py-0.5 text-left text-xs text-white hover:bg-club-navy-dark"
+                          title={ev.title}
+                        >
+                          {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}
+                          {ev.title}
+                        </Link>
+                      )
+                    )}
                   </div>
                 </div>
               );
@@ -136,8 +134,11 @@ export default function CalendarGrid({
         </div>
       </div>
 
-      {dialogState && (
-        <EventDialog state={dialogState} onClose={() => setDialogState(null)} />
+      {createDate && (
+        <EventDialog
+          state={{ mode: "create", date: createDate }}
+          onClose={() => setCreateDate(null)}
+        />
       )}
     </>
   );

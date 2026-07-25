@@ -40,3 +40,20 @@ export interface Photo {
   created_at: string;
   uploader?: Profile | null;
 }
+
+export interface EventParticipant {
+  id: string;
+  event_id: string;
+  user_id: string;
+  created_at: string;
+  profile?: Profile | null;
+}
+
+export interface EventMessage {
+  id: string;
+  event_id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  author?: Profile | null;
+}
