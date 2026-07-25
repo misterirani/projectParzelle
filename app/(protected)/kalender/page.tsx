@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
+import { birthdayOccurrenceInMonth } from "@/lib/dates";
 import CalendarGrid from "@/components/calendar/CalendarGrid";
 import type { EventItem } from "@/lib/types";
 
@@ -39,13 +40,28 @@ export default async function KalenderPage({
   const endStr = `${year}-${pad(month)}-${pad(monthLastDay)}`;
 
   const supabase = await createClient();
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .gte("event_date", startStr)
-    .lte("event_date", endStr)
-    .order("event_date", { ascending: true })
-    .order("event_time", { ascending: true });
+  const [{ data: events }, { data: birthdayProfiles }] = await Promise.all([
+    supabase
+      .from("events")
+      .select("*")
+      .gte("event_date", startStr)
+      .lte("event_date", endStr)
+      .order("event_date", { ascending: true })
+      .order("event_time", { ascending: true }),
+    supabase
+      .from("profiles")
+      .select("display_name, birth_date")
+      .not("birth_date", "is", null),
+  ]);
+
+  const birthdays = (birthdayProfiles ?? [])
+    .map((p) => {
+      const date = p.birth_date
+        ? birthdayOccurrenceInMonth(p.birth_date, year, month)
+        : null;
+      return date ? { date, displayName: p.display_name } : null;
+    })
+    .filter((b): b is { date: string; displayName: string } => b !== null);
 
   let prevYear = year;
   let prevMonth = month - 1;
@@ -92,6 +108,7 @@ export default async function KalenderPage({
         year={year}
         month={month}
         events={(events ?? []) as EventItem[]}
+        birthdays={birthdays}
       />
     </div>
   );

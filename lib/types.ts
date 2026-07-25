@@ -5,6 +5,7 @@ export interface Profile {
   email: string;
   display_name: string;
   role: Role;
+  birth_date: string | null; // YYYY-MM-DD
   created_at: string;
 }
 

@@ -35,10 +35,12 @@ export default function CalendarGrid({
   year,
   month,
   events,
+  birthdays,
 }: {
   year: number;
   month: number;
   events: EventItem[];
+  birthdays: { date: string; displayName: string }[];
 }) {
   const weeks = useMemo(() => buildWeeks(year, month), [year, month]);
 
@@ -51,6 +53,16 @@ export default function CalendarGrid({
     }
     return map;
   }, [events]);
+
+  const birthdaysByDate = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const b of birthdays) {
+      const list = map.get(b.date) ?? [];
+      list.push(b.displayName);
+      map.set(b.date, list);
+    }
+    return map;
+  }, [birthdays]);
 
   const [createDate, setCreateDate] = useState<string | null>(null);
   const todayStr = todayDateStr();
@@ -70,6 +82,7 @@ export default function CalendarGrid({
             week.map((cell, di) => {
               const dateStr = cell.date ? toDateStr(cell.date) : null;
               const dayEvents = dateStr ? eventsByDate.get(dateStr) ?? [] : [];
+              const dayBirthdays = dateStr ? birthdaysByDate.get(dateStr) ?? [] : [];
               const isToday = dateStr === todayStr;
               const isPast = dateStr ? isPastDate(dateStr) : false;
 
@@ -104,6 +117,15 @@ export default function CalendarGrid({
                     </div>
                   )}
                   <div className="mt-1 space-y-1">
+                    {dayBirthdays.map((name) => (
+                      <span
+                        key={name}
+                        className="block truncate rounded bg-club-gold/20 px-1.5 py-0.5 text-left text-xs text-club-navy"
+                        title={`${name} hat Geburtstag`}
+                      >
+                        🎂 {name}
+                      </span>
+                    ))}
                     {dayEvents.map((ev) =>
                       isPast ? (
                         <span

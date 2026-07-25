@@ -1,5 +1,5 @@
 import { requireProfile } from "@/lib/auth";
-import { updateDisplayName } from "./actions";
+import { updateProfile } from "./actions";
 
 export default async function ProfilPage({
   searchParams,
@@ -26,7 +26,7 @@ export default async function ProfilPage({
 
       <div className="rounded-lg border border-zinc-200 bg-white p-6">
         <p className="mb-4 text-sm text-zinc-500">{profile.email}</p>
-        <form action={updateDisplayName} className="space-y-3">
+        <form action={updateProfile} className="space-y-3">
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-600" htmlFor="display_name">
               Anzeigename
@@ -39,6 +39,21 @@ export default async function ProfilPage({
               defaultValue={profile.display_name}
               className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-club-sky"
             />
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-zinc-600" htmlFor="birth_date">
+              Geburtsdatum (optional)
+            </label>
+            <input
+              id="birth_date"
+              name="birth_date"
+              type="date"
+              defaultValue={profile.birth_date ?? ""}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-club-sky"
+            />
+            <p className="mt-1 text-xs text-zinc-400">
+              Erscheint jedes Jahr automatisch als 🎂 im Kalender.
+            </p>
           </div>
           <button
             type="submit"
