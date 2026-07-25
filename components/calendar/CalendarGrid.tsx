@@ -89,7 +89,7 @@ export default function CalendarGrid({
                       <span
                         className={`text-xs font-medium ${
                           isToday
-                            ? "flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900 text-white"
+                            ? "flex h-5 w-5 items-center justify-center rounded-full bg-club-sky text-white"
                             : "text-zinc-500"
                         }`}
                       >
@@ -101,7 +101,7 @@ export default function CalendarGrid({
                           onClick={() =>
                             setDialogState({ mode: "create", date: dateStr })
                           }
-                          className="text-xs text-zinc-400 hover:text-zinc-900"
+                          className="text-xs text-zinc-400 hover:text-club-navy"
                           aria-label="Termin hinzufügen"
                         >
                           +
@@ -121,7 +121,7 @@ export default function CalendarGrid({
                               : { mode: "view", event: ev }
                           )
                         }
-                        className="block w-full truncate rounded bg-zinc-900/90 px-1.5 py-0.5 text-left text-xs text-white hover:bg-zinc-700"
+                        className="block w-full truncate rounded bg-club-navy px-1.5 py-0.5 text-left text-xs text-white hover:bg-club-navy-dark"
                         title={ev.title}
                       >
                         {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}

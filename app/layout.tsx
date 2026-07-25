@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "projectParzelle",
-  description: "Fanclub-App für Kalender und Fotogalerie",
+  title: "Parzelle Eintracht",
+  description: "Fanclub-App von Parzelle Eintracht für Kalender und Fotogalerie",
 };
 
 export default function RootLayout({

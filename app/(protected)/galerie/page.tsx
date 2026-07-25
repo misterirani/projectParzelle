@@ -22,7 +22,7 @@ export default async function GaleriePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-zinc-900">Galerie</h1>
+      <h1 className="mb-6 text-2xl font-bold text-club-navy">Galerie</h1>
 
       <UploadForm />
 

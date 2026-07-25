@@ -63,7 +63,7 @@ export default async function KalenderPage({
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-zinc-900">
+        <h1 className="text-2xl font-bold text-club-navy">
           {MONTH_NAMES[month - 1]} {year}
         </h1>
         <div className="flex items-center gap-2">

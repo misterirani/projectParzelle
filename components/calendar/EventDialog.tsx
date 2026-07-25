@@ -94,7 +94,7 @@ export default function EventDialog({
                 name="title"
                 required
                 defaultValue={event?.title ?? ""}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -109,7 +109,7 @@ export default function EventDialog({
                   defaultValue={
                     event?.event_date ?? (state.mode === "create" ? state.date : "")
                   }
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
                 />
               </div>
               <div>
@@ -120,7 +120,7 @@ export default function EventDialog({
                   type="time"
                   name="event_time"
                   defaultValue={event?.event_time?.slice(0, 5) ?? ""}
-                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
                 />
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function EventDialog({
               <input
                 name="location"
                 defaultValue={event?.location ?? ""}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
               />
             </div>
             <div>
@@ -142,7 +142,7 @@ export default function EventDialog({
                 name="description"
                 rows={3}
                 defaultValue={event?.description ?? ""}
-                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
               />
             </div>
 
@@ -181,7 +181,7 @@ export default function EventDialog({
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+                className="rounded-md bg-club-navy px-4 py-2 text-sm font-medium text-white hover:bg-club-navy-dark disabled:opacity-50"
               >
                 {isPending ? "Speichern…" : "Speichern"}
               </button>

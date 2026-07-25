@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Vereinsfarben aus dem Parzelle Eintracht Wappen */
+  --club-sky: #2ea3e0;
+  --club-navy: #0f2a4a;
+  --club-navy-dark: #0a1d33;
+  --club-gold: #d4af37;
 }
 
 @theme inline {
@@ -10,6 +16,11 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-club-sky: var(--club-sky);
+  --color-club-navy: var(--club-navy);
+  --color-club-navy-dark: var(--club-navy-dark);
+  --color-club-gold: var(--club-gold);
 }
 
 @media (prefers-color-scheme: dark) {

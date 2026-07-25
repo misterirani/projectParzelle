@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { login } from "./actions";
 
 export default async function LoginPage({
@@ -8,12 +9,24 @@ export default async function LoginPage({
   const { error, redirectTo } = await searchParams;
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4">
+    <div className="flex flex-1 items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-1">projectParzelle</h1>
-        <p className="text-center text-sm text-zinc-500 mb-6">
-          Melde dich mit deinem Konto an
-        </p>
+        <div className="mb-6 flex flex-col items-center">
+          <Image
+            src="/logo.jpeg"
+            alt="Parzelle Eintracht"
+            width={88}
+            height={88}
+            className="mb-3 rounded-full ring-4 ring-club-gold"
+            priority
+          />
+          <h1 className="text-center text-2xl font-bold text-club-navy">
+            Parzelle Eintracht
+          </h1>
+          <p className="mt-1 text-center text-sm text-zinc-500">
+            Melde dich mit deinem Konto an
+          </p>
+        </div>
 
         {error && (
           <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -33,7 +46,7 @@ export default async function LoginPage({
               type="email"
               required
               autoComplete="email"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
             />
           </div>
           <div>
@@ -46,12 +59,12 @@ export default async function LoginPage({
               type="password"
               required
               autoComplete="current-password"
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-club-sky"
             />
           </div>
           <button
             type="submit"
-            className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700"
+            className="w-full rounded-md bg-club-navy py-2 text-sm font-medium text-white transition-colors hover:bg-club-navy-dark"
           >
             Anmelden
           </button>

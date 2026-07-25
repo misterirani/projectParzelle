@@ -17,7 +17,7 @@ export default async function InvitesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-zinc-900">Einladungen</h1>
+      <h1 className="mb-6 text-2xl font-bold text-club-navy">Einladungen</h1>
       <InviteForm />
       <div className="mt-8">
         <InviteList invites={(invites ?? []) as Invite[]} siteUrl={siteUrl} />
