@@ -44,6 +44,12 @@ export default function CalendarGrid({
 }) {
   const weeks = useMemo(() => buildWeeks(year, month), [year, month]);
 
+  const days = useMemo(
+    () =>
+      weeks.flatMap((week) => week.filter((cell): cell is { date: Date } => cell.date !== null)),
+    [weeks]
+  );
+
   const eventsByDate = useMemo(() => {
     const map = new Map<string, EventItem[]>();
     for (const ev of events) {
@@ -69,7 +75,8 @@ export default function CalendarGrid({
 
   return (
     <>
-      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
+      {/* Desktop/Tablet: Monatsraster */}
+      <div className="hidden overflow-hidden rounded-lg border border-zinc-200 bg-white sm:block">
         <div className="grid grid-cols-7 border-b border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-500">
           {WEEKDAYS.map((d) => (
             <div key={d} className="px-2 py-2 text-center">
@@ -154,6 +161,73 @@ export default function CalendarGrid({
             })
           )}
         </div>
+      </div>
+
+      {/* Mobile: Tagesliste, damit Titel nicht abgeschnitten werden */}
+      <div className="divide-y divide-zinc-100 rounded-lg border border-zinc-200 bg-white sm:hidden">
+        {days.map(({ date }) => {
+          const dateStr = toDateStr(date);
+          const dayEvents = eventsByDate.get(dateStr) ?? [];
+          const dayBirthdays = birthdaysByDate.get(dateStr) ?? [];
+          const isToday = dateStr === todayStr;
+          const isPast = isPastDate(dateStr);
+          const weekdayLabel = WEEKDAYS[(date.getDay() + 6) % 7];
+          const hasContent = dayEvents.length > 0 || dayBirthdays.length > 0;
+
+          return (
+            <div key={dateStr} className="flex gap-3 p-3">
+              <div
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-semibold ${
+                  isToday ? "bg-club-sky text-white" : "bg-zinc-50 text-zinc-500"
+                }`}
+              >
+                {date.getDate()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-zinc-400">{weekdayLabel}</span>
+                  {!isPast && (
+                    <button
+                      type="button"
+                      onClick={() => setCreateDate(dateStr)}
+                      className="text-xs font-medium text-zinc-400 hover:text-club-navy"
+                    >
+                      + Termin
+                    </button>
+                  )}
+                </div>
+                <div className="mt-1 space-y-1">
+                  {dayBirthdays.map((name) => (
+                    <p
+                      key={name}
+                      className="rounded bg-club-gold/20 px-2 py-1 text-sm text-club-navy"
+                    >
+                      🎂 {name} hat Geburtstag
+                    </p>
+                  ))}
+                  {dayEvents.map((ev) =>
+                    isPast ? (
+                      <p key={ev.id} className="rounded bg-zinc-100 px-2 py-1 text-sm text-zinc-400">
+                        {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}
+                        {ev.title}
+                      </p>
+                    ) : (
+                      <Link
+                        key={ev.id}
+                        href={`/kalender/${ev.id}`}
+                        className="block rounded bg-club-navy px-2 py-1 text-sm text-white hover:bg-club-navy-dark"
+                      >
+                        {ev.event_time ? `${ev.event_time.slice(0, 5)} ` : ""}
+                        {ev.title}
+                      </Link>
+                    )
+                  )}
+                  {!hasContent && <p className="text-sm text-zinc-300">—</p>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {createDate && (
