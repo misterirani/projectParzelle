@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireProfile } from "@/lib/auth";
 
 const BUCKET = "gallery-photos";
+const MAX_FILE_SIZE = 9 * 1024 * 1024; // 9 MB, unter dem 10-MB-Serverlimit
 
 export async function uploadPhoto(
   formData: FormData
@@ -21,6 +22,9 @@ export async function uploadPhoto(
   }
   if (!file.type.startsWith("image/")) {
     return { error: "Nur Bilddateien können hochgeladen werden." };
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    return { error: "Das Foto ist zu groß (max. 9 MB). Bitte wähle ein kleineres Bild." };
   }
 
   const ext = file.name.split(".").pop() || "jpg";

@@ -3,6 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { uploadPhoto } from "@/app/(protected)/galerie/actions";
 
+const MAX_FILE_SIZE = 9 * 1024 * 1024; // 9 MB, unter dem 10-MB-Serverlimit
+
 export default function UploadForm() {
   const [isPending, startTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
@@ -13,6 +15,10 @@ export default function UploadForm() {
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) {
       setError("Bitte wähle ein Bild aus.");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Das Foto ist zu groß (max. 9 MB). Bitte wähle ein kleineres Bild.");
       return;
     }
     startTransition(async () => {
