@@ -16,7 +16,11 @@ export default function UploadForm() {
       return;
     }
     startTransition(async () => {
-      await uploadPhoto(formData);
+      const result = await uploadPhoto(formData);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
       formRef.current?.reset();
     });
   };

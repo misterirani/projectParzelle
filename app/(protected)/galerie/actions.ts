@@ -7,15 +7,21 @@ import { requireProfile } from "@/lib/auth";
 
 const BUCKET = "gallery-photos";
 
-export async function uploadPhoto(formData: FormData) {
+export async function uploadPhoto(
+  formData: FormData
+): Promise<{ error?: string } | void> {
   const profile = await requireProfile();
   const supabase = await createClient();
 
   const file = formData.get("file");
   const caption = String(formData.get("caption") ?? "").trim() || null;
 
-  if (!(file instanceof File) || file.size === 0) return;
-  if (!file.type.startsWith("image/")) return;
+  if (!(file instanceof File) || file.size === 0) {
+    return { error: "Bitte wähle ein Bild aus." };
+  }
+  if (!file.type.startsWith("image/")) {
+    return { error: "Nur Bilddateien können hochgeladen werden." };
+  }
 
   const ext = file.name.split(".").pop() || "jpg";
   const path = `${profile.id}/${randomUUID()}.${ext}`;
@@ -24,13 +30,20 @@ export async function uploadPhoto(formData: FormData) {
     .from(BUCKET)
     .upload(path, file, { contentType: file.type });
 
-  if (uploadError) return;
+  if (uploadError) {
+    return { error: `Upload fehlgeschlagen: ${uploadError.message}` };
+  }
 
-  await supabase.from("photos").insert({
+  const { error: insertError } = await supabase.from("photos").insert({
     storage_path: path,
     caption,
     uploader_id: profile.id,
   });
+
+  if (insertError) {
+    await supabase.storage.from(BUCKET).remove([path]);
+    return { error: `Speichern fehlgeschlagen: ${insertError.message}` };
+  }
 
   revalidatePath("/galerie");
 }
